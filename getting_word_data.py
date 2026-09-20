@@ -40,7 +40,11 @@ def parse_entry(entry):
         "pos": swe.get("partOfSpeech"),
         "definition": sense.get("definition", {}).get("text"),
         "examples": [ex["text"] for ex in sense.get("examples", [])],
+        "saldo_links": entry.get("saldoLinks", []),
     }
 
 for e in fetch_lexin(word):
     print(parse_entry(e))
+
+
+
