@@ -1,5 +1,4 @@
 
-
 #SWESAURUS, getting synonyms
 
 import requests
@@ -43,7 +42,20 @@ def parse_relations(entry):
         results.append([clean_sense_id(sense), rel.get("degree", 0)])
     return results
 
+#the sense:id is gotten from the word data program
+def synonym_catcher(sense_id):
+    entries = fetch_swesaurus(sense_id)
+
+    synonym_list = []
+
+    for entry in entries:
+        synonym_list.extend(parse_relations(entry))
+
+    return synonym_list
+
 #for testing
-entries = fetch_swesaurus("erinra..1")   # list of entries (1 for erinra..1)
-print(parse_relations(entries[0]))  
+
+if __name__ == "__main__":
+    print(synonym_catcher("erinra..1"))
+    print(synonym_catcher("beivra..1"))
 

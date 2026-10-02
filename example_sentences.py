@@ -14,6 +14,7 @@ NO_SPACE_BEFORE = {".", ",", "!", "?", ":", ";", ")", "]", "}", "\u201d", "\u201
 
 NO_SPACE_AFTER = {"(", "[", "{", "\u201c", "\u2018"}
 
+#building fetching query basically
 def build_cqp_multi_parts(baseform):
     #if multiple parts, split them.
     parts =baseform.split()
@@ -27,6 +28,7 @@ def build_cqp_multi_parts(baseform):
         rest += f'[word="{p}"] '
     rest = rest.strip()
     return f"{first} {rest}"
+
 
 def tokens_to_text(tokens):
     #make the Korp token list into a readable string
@@ -82,11 +84,31 @@ def get_examples_sentences(baseform, max_examples=5, corpora=None, context="20 w
 
     return examples
 
+#ensure we get enough exmaples actually!
+def get_examples_with_fallback(baseform, max_examples=5):
+    examples = get_examples_sentences(baseform, max_examples)
+    if len(examples) < max_examples:
+        more = get_examples_sentences(baseform, max_examples, corpora=FALLBACK_CORPORA)
 
+        for extra_example in more:
+
+
+            if not extra_example in examples:
+                examples.append(extra_example)
+
+            if len(examples) >= max_examples:
+                break
+        
+    return examples
+
+
+def fetch_examples_sentences(sense_id):
+    return get_examples_with_fallback(sense_id)
 
 
 if __name__ == "__main__":
     for word in ["erinra", "beivra", "erinra sig"]:
         print(f"\n{word}:")
-        for sentence in get_examples_sentences(word):
+        for sentence in get_examples_with_fallback(word):
             print(f"  - {sentence}")
+

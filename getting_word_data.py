@@ -2,8 +2,6 @@
 
 #LEXIN, getting word definition
 
-word = "erinra"
-
 import requests
 from pathlib import Path
 
@@ -30,7 +28,7 @@ def fetch_lexin(word, size = 20):
 
     return word_list
 
-
+#clean the data
 def parse_entry(entry):
     swe = entry["languages"][0]
     sense = entry.get("sense",{})
@@ -43,8 +41,19 @@ def parse_entry(entry):
         "saldo_links": entry.get("saldoLinks", []),
     }
 
-for e in fetch_lexin(word):
-    print(parse_entry(e))
+#this is the stuff we call, note that it returns alot and can return several "definitions".
+def get_definition(word):
+    entries = fetch_lexin(word)
+
+    definitions = []
+
+    for entry in entries:
+        definitions.append(parse_entry(entry))
+
+    return definitions
+    
 
 
-
+if __name__ == "__main__":
+    for sense in get_definition("erinra"):
+        print(sense)
