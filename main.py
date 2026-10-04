@@ -15,6 +15,8 @@ experimental_word_list = ["beivra", "erinra", "kokettera", "plombering", "fadäs
 #getting the API KEY from the enc
 load_dotenv()
 API_KEY = os.environ["API_KEY"]
+LLM_BASE_URL = os.environ["LLM_BASE_URL"]
+LLM_MODEL = os.environ["LLM_MODEL"]
 
 
 
@@ -143,12 +145,12 @@ def check_answer(word, user_answer):
     prompt = build_prompt(word_data, examples, user_answer)
 
 def call_llm(prompt):
-    url = "https://api.groq.com/openai/v1/chat/completions"
+    url = f"{LLM_BASE_URL}/chat/completions"
 
     headers = {"Authorization": f"Bearer {API_KEY}"}
 
     body = {
-        "model": "openai/gpt-oss-120b",
+        "model": LLM_MODEL ,
         "messages": [{"role": "user", "content": prompt}],
         "response_format": {"type": "json_object"},
     }
@@ -169,7 +171,7 @@ def call_llm(prompt):
 #        examples = get_corpora(word)
 #        print(build_prompt(data, examples, "minnas"))
 
-
+#more test
 if __name__ == "__main__":
     for word in ["erinra", "beivra"]:
         data = get_word_data(word)
@@ -178,3 +180,4 @@ if __name__ == "__main__":
         result = call_llm(prompt)
         print(word, result["content"])
         print(result["usage"])
+#nya :D
