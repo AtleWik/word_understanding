@@ -1,15 +1,15 @@
 
 import os
 from dotenv import load_dotenv
+import json
+import requests
 
 from getting_word_data import get_definition
 from getting_synonyms import synonym_catcher
 from example_sentences import fetch_examples_sentences
 
-import requests
 
 experimental_word_list = ["beivra", "erinra", "kokettera", "plombering", "fadäs", "ingalunda", "förfördela", "björntjänst"]
-
 
 
 #getting the API KEY from the enc
@@ -127,23 +127,6 @@ def build_prompt(word_data, exmaples, user_answer):
 
     return prompt
 
-
-def check_answer(word, user_answer):
-    word_data = get_word_data(word)
-
-    synonyms = []
-
-    for sense_synonyms in word_data["synonyms_by_sense"].values():
-        synonyms.extend(sense_synonyms)
-
-    if good_synonym_used(user_answer, synonyms):
-        print("GJ")
-        return True
-
-    examples =get_corpora(word)
-
-    prompt = build_prompt(word_data, examples, user_answer)
-
 def call_llm(prompt):
     url = f"{LLM_BASE_URL}/chat/completions"
 
@@ -164,6 +147,26 @@ def call_llm(prompt):
         "usage": data["usage"],
     }
 
+def check_answer(word, user_answer):
+    word_data = get_word_data(word)
+
+    synonyms = []
+
+    for sense_synonyms in word_data["synonyms_by_sense"].values():
+        synonyms.extend(sense_synonyms)
+
+    #aviod calling LLM if needed
+    if good_synonym_used(user_answer, synonyms):
+        return {"verdict": "correct", "reason": "Du använde en synonym."}
+
+    
+    examples = get_corpora(word)
+    prompt = build_prompt(word_data, examples, user_answer)
+    result = call_llm(prompt)
+    return json.loads(result["content"])
+
+
+
 #init testing
 #if __name__ == "__main__":
 #    for word in ["erinra", "beivra"]:
@@ -172,12 +175,26 @@ def call_llm(prompt):
 #        print(build_prompt(data, examples, "minnas"))
 
 #more test
-if __name__ == "__main__":
-    for word in ["erinra", "beivra"]:
-        data = get_word_data(word)
-        examples = get_corpora(word)
-        prompt = build_prompt(data, examples, "minnas")
-        result = call_llm(prompt)
-        print(word, result["content"])
-        print(result["usage"])
+#if __name__ == "__main__":
+#    for word in ["erinra", "beivra"]:
+#        data = get_word_data(word)
+#        examples = get_corpora(word)
+#        prompt = build_prompt(data, examples, "minnas")
+#        result = call_llm(prompt)
+#        print(word, result["content"])
+#        print(result["usage"])
 #nya :D
+
+if __name__ == "__main__":
+    for word in experimental_word_list:
+        print(f"Ditt ord är {word} \n")
+
+        user_answer = input("Vad betyder ordet? Det är ok att bara svara direkt med definition eller synonymer")
+
+        verdict = check_answer(word, user_answer)
+
+        if verdict["verdict"] == "correct":
+            print("Bra jobbat, du vet vad ordet betyder!\n")
+        else:
+            print("Inte riktigt: " + verdict["reason"] + "\n")
+        
