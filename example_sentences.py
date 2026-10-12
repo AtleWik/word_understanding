@@ -66,6 +66,9 @@ def get_examples_sentences(baseform, max_examples=5, corpora=None, context="20 w
 
     data = response.json()
 
+    if "ERROR" in data:
+        print(f"Korp-fel: {data['ERROR']}")
+
     seen = set()
     examples = []
 
@@ -101,14 +104,22 @@ def get_examples_with_fallback(baseform, max_examples=5):
         
     return examples
 
-
+#call this one, prettier name :)
 def fetch_examples_sentences(sense_id):
     return get_examples_with_fallback(sense_id)
 
-
 if __name__ == "__main__":
-    for word in ["erinra", "beivra", "erinra sig"]:
-        print(f"\n{word}:")
-        for sentence in get_examples_with_fallback(word):
-            print(f"  - {sentence}")
+    params = {
+        "corpus": "GP2012,GP2013,ROMI,ROMII,SUC3",
+        "cqp": '[word = "approxim.*"]',
+        "start": 0,
+        "end": 4,
+        "default_context": "20 words",
+    }
+    data = requests.get(KORP_API, params=params, timeout=10).json()
 
+    
+    print("hits:", data.get("hits"), "error:", data.get("ERROR"))
+
+    for hit in data.get("kwic", []):
+        print("-", tokens_to_text(hit["tokens"]))

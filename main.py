@@ -9,7 +9,7 @@ from getting_synonyms import synonym_catcher
 from example_sentences import fetch_examples_sentences
 
 
-experimental_word_list = ["beivra", "erinra", "kokettera", "plombering", "fadäs", "ingalunda", "förfördela", "björntjänst"]
+#experimental_word_list = ["beivra", "erinra", "kokettera", "plombering", "fadäs", "ingalunda", "förfördela", "björntjänst"]
 
 
 #getting the API KEY from the enc
@@ -18,6 +18,17 @@ API_KEY = os.environ["API_KEY"]
 LLM_BASE_URL = os.environ["LLM_BASE_URL"]
 LLM_MODEL = os.environ["LLM_MODEL"]
 
+def load_words(path):
+
+    word_list = []
+
+    with open(path, encoding="utf-8-sig") as f:
+        for line in f:
+            word = line.strip()
+            if word:
+                word_list.append(word)
+
+    return word_list
 
 
 #extracting the data from the different files
@@ -186,15 +197,16 @@ def check_answer(word, user_answer):
 #nya :D
 
 if __name__ == "__main__":
-    for word in experimental_word_list:
-        print(f"Ditt ord är {word} \n")
+    print("\n \n \n \n")
+    for word in load_words("./word.txt"):
+        print(f"Ditt ord är: {word} \n")
 
-        user_answer = input("Vad betyder ordet? Det är ok att bara svara direkt med definition eller synonymer")
+        user_answer = input("Vad betyder ordet? Det är ok att bara svara direkt med definition eller synonymer: \n")
 
         verdict = check_answer(word, user_answer)
 
         if verdict["verdict"] == "correct":
-            print("Bra jobbat, du vet vad ordet betyder!\n")
+            print("\n Bra jobbat, du vet vad ordet betyder!\n")
         else:
             print("Inte riktigt: " + verdict["reason"] + "\n")
         
